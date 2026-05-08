@@ -146,7 +146,9 @@ export const scanRecord = pgTable("scan_records", {
 
 ## 5. AI OCR Architecture: The Grounded Vision Pipeline
 
-Handling Bangladeshi prescriptions involves tackling complex cursive, mixed Bangla/English text, aggressive shorthand, and poor image quality. HelloMed implements a highly resilient 4-Step Grounded Vision pipeline.
+Handling Bangladeshi prescriptions involves tackling complex cursive, mixed Bangla/English text, aggressive shorthand, and poor image quality. HelloMed implements a highly resilient 4-Step Grounded Vision pipeline. 
+
+**Infrastructure Offloading:** To successfully bypass Vercel's strict 10-second serverless execution timeout during heavy image processing, the core OCR inference pipeline has been strategically offloaded to a dedicated **Render** backend, ensuring stable and reliable extractions.
 
 ### Step 0: Client-Side Optimization
 * **Process:** Image is heavily downscaled locally. Binarization and contrast enhancement loops run in an HTML5 Canvas to darken mid-tones and whiten light tones.
@@ -169,11 +171,29 @@ Handling Bangladeshi prescriptions involves tackling complex cursive, mixed Bang
 
 ---
 
-## 6. Deprecated/Archived Features: Medo Chatbot
+## 6. Planned Features: Medo AI Chatbot & Health Assistant (Dual Extraction)
 
-During early alpha testing, HelloMed featured an interactive LLM Chatbot ("Medo"). However, due to dependency conflicts (specifically `zod` versioning mismatches with the Vercel AI SDK) and local build environment instability, the chat interface components (`GlobalChatWidget`, etc.) have been completely deprecated and removed from the active routing layer. 
+**Medo** is the planned patient-facing intelligence layer of HelloMed. While temporarily paused in implementation to stabilize core OCR features and resolve Vercel AI SDK dependency conflicts, it remains a central planned feature utilizing a **Vault-Centric Architecture** to bypass the unreliability and high cost of LLM-based OCR on every single chat message.
 
-The project has pivoted to strictly feature structured, robust Document Extraction and Data Pipelining (The OCR Vision features) rather than conversational AI.
+### The Upload Phase (Pre-Chat)
+
+1. **The Router:** When a user uploads a document to their Vault, Medo's backend classifies it as a Prescription or a Pathology/Lab Report.
+2. **Dual Extraction:**
+   * **Prescriptions:** Processed through the Grounded Vision Pipeline, generating a verified JSON array of drugs and dosages.
+   * **Lab Reports:** Sent through an LLM-based OCR pipeline tailored for tabular data, generating a structured JSON of test names, values, units, and reference ranges.
+3. Both the original image and the lightweight JSON are stored securely in Backblaze B2.
+
+### The Chat Phase
+
+1. When chatting with Medo, the user attaches a file from their Vault (via a bottom-sheet UI).
+2. The backend injects the **structured JSON data** into Medo's LLM context, entirely hidden from the user, rather than sending the heavy image. This practically eliminates hallucinations and severely reduces API costs.
+3. **Ephemeral Persistence:** Medo's chat history is stored securely in the browser's `sessionStorage`. If the browser or tab is closed, the context is permanently wiped, ensuring maximum privacy.
+
+### Voice UX & Starter Chips (Planned)
+
+* **Voice UX:** Powered by `openai/whisper-large-v3-turbo` with a 5-second visual countdown review system for hands-free accuracy.
+* **Starter Chips:** Floating suggestions ("Are my results normal?") to aid users with low health literacy.
+* **Exportable Reports:** Significant AI responses (like a 7-day meal plan) can be exported to a single-page PDF on the client-side.
 
 ---
 
@@ -212,7 +232,7 @@ HelloMed actively prevents misdiagnosis and provides immediate intervention duri
 
 ---
 
-## 9. Implementation Roadmap (12 Phases)
+## 9. Implementation Roadmap (14 Phases)
 
 | Phase | Task Description | Status |
 | :--- | :--- | :--- |
@@ -221,13 +241,15 @@ HelloMed actively prevents misdiagnosis and provides immediate intervention duri
 | **P3** | **Data Foundation:** Seed database with medicine CSVs (120k+ entries). | Completed |
 | **P4** | **Instant Lookup:** Build high-speed medicine search and info cards. | Completed |
 | **P5** | **Report Foundation:** UploadThing integration and basic reports. | Completed |
-| **P6** | **Vision Scanner:** Prescription/Packaging OCR with hybrid local DB matching. | Completed |
+| **P6** | **Vision Scanner:** Prescription/Packaging OCR via Render Backend. | Completed |
 | **P7** | **Scraper Fallback:** Dynamic Medex fallback scraping into `externalMedicine`. | Completed |
 | **P8** | **Generic Matcher:** "Cheap alternative" engine based on generic cross-referencing. | Completed |
 | **P9** | **Pharma Dashboard:** Disease heatmaps via Leaflet and exportable regional analytics. | Completed |
 | **P10** | **Admin Identity System:** Superadmin RBAC, corporate invites, and account management. | Completed |
 | **P11** | **Forgot Password Flow:** Secure OTP verification loop via BetterAuth emailOTP. | Completed |
 | **P12** | **Polish & Deployment:** Build stabilization, dependency cleanup, and Vercel optimization. | In Progress |
+| **P13** | **Medo Chatbot (Basic):** Dual extraction integration and chat UI components. | Planned |
+| **P14** | **Medo Chatbot (Advanced):** Voice UX (Whisper) and Multilingual Bangla summaries. | Planned |
 
 ---
 
