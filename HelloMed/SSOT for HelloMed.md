@@ -1,3 +1,5 @@
+# TEAM INTERNAL DOCUMENT. ONLY FOR INTERNAL AND TEAM PERSONNELS. NOT INTENDED FOR EXTERNAL USE/ DEMONSTRATION
+
 # Project HelloMed: Comprehensive AI-Powered Medical Companion Documentation
 
 ## 1. Project Vision & Overview
