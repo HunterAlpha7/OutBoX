@@ -1,3 +1,5 @@
+# TEAM INTERNAL DOCUMENT. ONLY FOR INTERNAL AND TEAM PERSONNELS. NOT INTENDED FOR EXTERNAL USE/ DEMONSTRATION.
+
 # HelloMed: Core Algorithmic & Pipeline Inventory
 
 This document serves as a technical reference for the core algorithms, data pipelines, and architectural patterns implemented within the HelloMed platform.
